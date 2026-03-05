@@ -153,6 +153,17 @@ st.markdown(
     div[data-testid="stSlider"] {
         margin-top: -3rem;
     }
+    
+    /* Disable text input in selectbox - make it a pure dropdown */
+    div[data-baseweb="select"] input {
+        pointer-events: none;
+        caret-color: transparent;
+        user-select: none;
+    }
+    
+    div[data-baseweb="select"] {
+        cursor: pointer;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -163,49 +174,22 @@ col1, col2 = st.columns([1, 3])
 with col1:
     st.write("**Test type**")
 with col2:
-    kind = st.selectbox("Test type", ["One-sided", "Two-sided"], label_visibility="collapsed")
-
-if kind == "One-sided":
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        st.write("**Mode**")
-    with col2:
-        mode_label = st.selectbox("Mode", ["Larger than  P(X > a)", "Lower than  P(X < a)"], label_visibility="collapsed")
-    mode = "gt" if ">" in mode_label else "lt"
-
-    # number_input (a)  -> slider sync
-    st.number_input(
-        "a",
-        key="a",
-        step=0.01,
-        format="%.2f",
-        on_change=on_a_input_change
+    test_type = st.selectbox(
+        "Test type",
+        [
+            "Left tail: P(Z < a)",
+            "Right tail: P(Z > a)",
+            "Between two values: P(a < Z < b)",
+            "Outside two values (two tails): P(Z < a or Z > b)"
+        ],
+        label_visibility="collapsed"
     )
 
-    a = clip4(st.session_state["a"])
-    p = area_one_side(mode, a)
-    fig = make_figure("one", mode, a, 0.0)
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.slider(
-        "",
-        min_value=-4.0,
-        max_value=4.0,
-        key="a_slider",
-        step=0.01,
-        on_change=on_a_slider_change
-    )
-
-    st.subheader(f"Probability = {p:.4f}")
-
-else:
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        st.write("**Mode**")
-    with col2:
-        mode_label = st.selectbox("Mode", ["Inside  P(a < X < b)", "Outside  P(X < a or X > b)"], label_visibility="collapsed")
-    mode = "inside" if "Inside" in mode_label else "outside"
-
+# Determine if single or double value input
+if "Between" in test_type or "Outside" in test_type:
+    # Two-value case
+    mode = "inside" if "Between" in test_type else "outside"
+    
     c1, c2 = st.columns(2) 
     with c1: 
         st.number_input(
@@ -238,4 +222,32 @@ else:
     )
 
     lo, hi = (a, b) if a <= b else (b, a)
-    st.subheader(f"Probability = {p:.4f} ")
+    st.subheader(f"Probability = {p:.4f}")
+
+else:
+    # Single-value case (Left tail or Right tail)
+    mode = "lt" if "Left" in test_type else "gt"
+    
+    st.number_input(
+        "a",
+        key="a",
+        step=0.01,
+        format="%.2f",
+        on_change=on_a_input_change
+    )
+
+    a = clip4(st.session_state["a"])
+    p = area_one_side(mode, a)
+    fig = make_figure("one", mode, a, 0.0)
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.slider(
+        "",
+        min_value=-4.0,
+        max_value=4.0,
+        key="a_slider",
+        step=0.01,
+        on_change=on_a_slider_change
+    )
+
+    st.subheader(f"Probability = {p:.4f}")

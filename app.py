@@ -92,8 +92,18 @@ def on_a_slider_change():
 
 def on_ab_slider_change():
     lo, hi = st.session_state["ab_slider"]
-    st.session_state["a"] = clip4(lo)
-    st.session_state["b"] = clip4(hi)
+    lo, hi = clip4(lo), clip4(hi)
+    EPS = 0.01
+    if abs(hi - lo) < EPS:
+        if hi + EPS <= 4.0:
+            hi = hi + EPS
+        elif lo - EPS >= -4.0:
+            lo = lo - EPS
+
+    st.session_state["a"] = lo
+    st.session_state["b"] = hi
+    st.session_state["ab_slider"] = (lo, hi)
+
 
 # callbacks: inputs -> slider
 def on_a_input_change():
@@ -101,13 +111,20 @@ def on_a_input_change():
     st.session_state["a_slider"] = st.session_state["a"]
 
 def on_ab_input_change():
-    st.session_state["a"] = clip4(st.session_state["a"])
-    st.session_state["b"] = clip4(st.session_state["b"])
-    lo, hi = (st.session_state["a"], st.session_state["b"])
-    if lo > hi:
-        lo, hi = hi, lo
-        st.session_state["a"], st.session_state["b"] = lo, hi
+    a = clip4(st.session_state["a"])
+    b = clip4(st.session_state["b"])
+    lo, hi = (a, b) if a <= b else (b, a)
+    EPS = 0.01
+    if abs(hi - lo) < EPS:
+        if hi + EPS <= 4.0:
+            hi += EPS
+        elif lo - EPS >= -4.0:
+            lo -= EPS
+
+    st.session_state["a"] = lo
+    st.session_state["b"] = hi
     st.session_state["ab_slider"] = (lo, hi)
+
 
 # ---------- Init state ----------
 if "a" not in st.session_state:
@@ -189,25 +206,21 @@ else:
         mode_label = st.selectbox("Mode", ["Inside  P(a < X < b)", "Outside  P(X < a or X > b)"], label_visibility="collapsed")
     mode = "inside" if "Inside" in mode_label else "outside"
 
-    c1, c2 = st.columns(2)
-    with c1:
+    c1, c2 = st.columns(2) 
+    with c1: 
         st.number_input(
-            "a",
-            key="a",
-            value=float(st.session_state["a"]),
-            step=0.01,
-            format="%.2f",
-            on_change=on_ab_input_change
-        )
-    with c2:
-        st.number_input(
-            "b",
-            key="b",
-            value=float(st.session_state["b"]),
-            step=0.01,
-            format="%.2f",
-            on_change=on_ab_input_change
-        )
+            "a", 
+            key="a", 
+            step=0.01, 
+            format="%.2f", 
+            on_change=on_ab_input_change ) 
+    with c2: 
+        st.number_input( 
+            "b", 
+            key="b", 
+            step=0.01, 
+            format="%.2f", 
+            on_change=on_ab_input_change )
 
     a = clip4(st.session_state["a"])
     b = clip4(st.session_state["b"])

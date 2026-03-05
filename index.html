@@ -1,9 +1,29 @@
-# app.py
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Normal Probability App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.77.0/build/style.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script type="module">
+      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.77.0/build/stlite.js";
+      
+      mount(
+        {
+          requirements: ["numpy", "plotly==5.23.0"],
+          // Define the main file to run
+          entrypoint: "app.py",
+          // Pass the Python code as a virtual file
+          files: {
+            "app.py": `
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 from math import erf, sqrt, pi
-
 
 # ---------- Standard Normal ----------
 def norm_pdf(x):
@@ -21,7 +41,6 @@ def area_two_side(mode, a, b):
     return inside if mode == "inside" else (1.0 - inside)
 
 # ---------- Figure ----------
-
 def make_figure(kind, mode, a, b):
     x = np.linspace(-4, 4, 1200)
     y = norm_pdf(x)
@@ -104,7 +123,6 @@ def on_ab_slider_change():
     st.session_state["b"] = hi
     st.session_state["ab_slider"] = (lo, hi)
 
-
 # callbacks: inputs -> slider
 def on_a_input_change():
     st.session_state["a"] = clip4(st.session_state["a"])
@@ -124,7 +142,6 @@ def on_ab_input_change():
     st.session_state["a"] = lo
     st.session_state["b"] = hi
     st.session_state["ab_slider"] = (lo, hi)
-
 
 # ---------- Init state ----------
 if "a" not in st.session_state:
@@ -225,7 +242,7 @@ if "Between" in test_type or "Outside" in test_type:
     st.subheader(f"Probability = {p:.4f}")
 
 else:
-    # Single-value case (Left tail or Right tail)
+    # Single-value case
     mode = "lt" if "Left" in test_type else "gt"
     
     st.number_input(
@@ -251,3 +268,11 @@ else:
     )
 
     st.subheader(f"Probability = {p:.4f}")
+`
+          }
+        },
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>

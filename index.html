@@ -1,278 +1,917 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Normal Probability App</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@0.77.0/build/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          system-ui,
+          sans-serif;
+        background-color: #f8f9fa;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        font-size: 28px;
+      }
+
+      .control-group {
+        margin-bottom: 25px;
+      }
+
+      .row {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 100px;
+      }
+
+      /* Custom Dropdown Styles */
+      .custom-select {
+        position: relative;
+        flex: 1;
+        user-select: none;
+      }
+
+      .custom-select-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .custom-select-trigger:hover {
+        border-color: #cbd5e1;
+        background-color: #f9fafb;
+      }
+
+      .custom-select.open .custom-select-trigger {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background-color: white;
+      }
+
+      .custom-select-arrow {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+        margin-left: 8px;
+      }
+
+      .custom-select.open .custom-select-arrow {
+        transform: rotate(180deg);
+      }
+
+      .custom-select-options {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        max-height: 300px;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+        z-index: 1000;
+      }
+
+      .custom-select.open .custom-select-options {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .custom-option {
+        padding: 12px 14px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        color: #374151;
+      }
+
+      .custom-option:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+      }
+
+      .custom-option.selected {
+        background-color: #eff6ff;
+        color: #3b82f6;
+        font-weight: 600;
+      }
+
+      .custom-option:first-child {
+        border-radius: 6px 6px 0 0;
+      }
+
+      .custom-option:last-child {
+        border-radius: 0 0 6px 6px;
+      }
+
+      /* Hide native select (keeping for fallback) */
+      select {
+        display: none;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .input-group {
+        flex: 1;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      input[type="number"] {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #dee2e6;
+        outline: none;
+        -webkit-appearance: none;
+        margin: 10px 0;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        border: none;
+      }
+
+      #chart {
+        margin: 20px 0;
+        min-height: 400px;
+      }
+
+      .result {
+        background-color: #f8fafc;
+        border: 2px solid #e2e8f0;
+        padding: 24px;
+        border-radius: 12px;
+        margin-top: 30px;
+        text-align: center;
+      }
+
+      .result-value {
+        font-size: 28px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .slider-container {
+        margin: 20px 0;
+        padding: 0 30px;
+      }
+
+      .double-range {
+        position: relative;
+        height: 40px;
+        display: flex;
+        align-items: center;
+      }
+
+      .double-range input[type="range"] {
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        -webkit-appearance: none;
+        background: transparent;
+        margin: 0;
+        height: 18px;
+      }
+
+      .double-range input[type="range"]::-webkit-slider-thumb {
+        pointer-events: all;
+        margin-top: 0;
+      }
+
+      .double-range input[type="range"]::-moz-range-thumb {
+        pointer-events: all;
+      }
+
+      .range-track {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: #dee2e6;
+        border-radius: 3px;
+      }
+
+      .range-fill {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 6px;
+        background: #007bff;
+        border-radius: 3px;
+      }
+
+      .mirror-mode-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .mirror-mode-container input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .mirror-mode-container label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+        min-width: auto;
+        margin: 0;
+      }
+
+      /* 모바일 대응 */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .container {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 22px;
+          margin-bottom: 20px;
+        }
+
+        .row {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+
+        label {
+          min-width: auto;
+          font-size: 13px;
+        }
+
+        .custom-select-trigger {
+          font-size: 13px;
+          padding: 10px;
+        }
+
+        .custom-option {
+          font-size: 13px;
+          padding: 10px;
+        }
+
+        .input-row {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        input[type="number"] {
+          font-size: 16px;
+        }
+
+        .mirror-mode-container {
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 20px;
+        }
+
+        .custom-select-trigger {
+          font-size: 12px;
+          padding: 8px;
+        }
+
+        .custom-option {
+          font-size: 12px;
+          padding: 8px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    
-    <script type="module">
-      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@0.77.0/build/stlite.js";
-      
-      mount(
-        {
-          requirements: ["numpy", "plotly==5.23.0"],
-          // Define the main file to run
-          entrypoint: "app.py",
-          // Pass the Python code as a virtual file
-          files: {
-            "app.py": `
-import numpy as np
-import streamlit as st
-import plotly.graph_objects as go
-from math import erf, sqrt, pi
+    <div class="container">
+      <h1>Normal Distribution Probability</h1>
 
-# ---------- Standard Normal ----------
-def norm_pdf(x):
-    return (1.0 / sqrt(2*pi)) * np.exp(-0.5 * x**2)
+      <div class="control-group">
+        <div class="row">
+          <label for="testType">Test type</label>
+          <div class="custom-select" id="testTypeSelect">
+            <div class="custom-select-trigger">
+              <span class="custom-select-value">Left tail: P(Z &lt; a)</span>
+              <svg
+                class="custom-select-arrow"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="none"
+              >
+                <path
+                  d="M5 7.5L10 12.5L15 7.5"
+                  stroke="#6b7280"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="custom-select-options">
+              <div class="custom-option selected" data-value="lt">
+                Left tail: P(Z &lt; a)
+              </div>
+              <div class="custom-option" data-value="gt">
+                Right tail: P(Z &gt; a)
+              </div>
+              <div class="custom-option" data-value="inside">
+                Between two values: P(a &lt; Z &lt; b)
+              </div>
+              <div class="custom-option" data-value="outside">
+                Outside two values (two tails): P(Z &lt; a or Z &gt; b)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-def norm_cdf(x):
-    return 0.5 * (1.0 + erf(x / sqrt(2)))
+      <div id="inputsContainer">
+        <!-- Inputs will be dynamically inserted here -->
+      </div>
 
-def area_one_side(mode, a):
-    return (1.0 - norm_cdf(a)) if mode == "gt" else norm_cdf(a)
+      <div id="chart"></div>
 
-def area_two_side(mode, a, b):
-    lo, hi = (a, b) if a <= b else (b, a)
-    inside = norm_cdf(hi) - norm_cdf(lo)
-    return inside if mode == "inside" else (1.0 - inside)
+      <div class="slider-container" id="sliderContainer">
+        <!-- Slider will be dynamically inserted here -->
+      </div>
 
-# ---------- Figure ----------
-def make_figure(kind, mode, a, b):
-    x = np.linspace(-4, 4, 1200)
-    y = norm_pdf(x)
+      <div class="result">
+        <div class="result-value" id="probability">Probability = 0.0000</div>
+      </div>
+    </div>
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode="lines", name="Normal PDF"))
+    <script>
+      // ========== Math Functions ==========
 
-    if kind == "one":
-        mask = (x >= a) if mode == "gt" else (x <= a)
-        xs, ys = x[mask], y[mask]
-        fig.add_trace(go.Scatter(
-            x=np.r_[xs[0], xs, xs[-1]],
-            y=np.r_[0, ys, 0],
-            fill="toself",
-            mode="lines",
-            line=dict(width=0),
-            name="Shaded"
-        ))
-        fig.add_vline(x=a, line_width=2, line_dash="dash")
-    else:
-        lo, hi = (a, b) if a <= b else (b, a)
-        if mode == "inside":
-            mask = (x >= lo) & (x <= hi)
-            xs, ys = x[mask], y[mask]
-            fig.add_trace(go.Scatter(
-                x=np.r_[xs[0], xs, xs[-1]],
-                y=np.r_[0, ys, 0],
-                fill="toself",
-                mode="lines",
-                line=dict(width=0),
-                name="Shaded"
-            ))
-        else:
-            for mask in (x <= lo, x >= hi):
-                xs, ys = x[mask], y[mask]
-                fig.add_trace(go.Scatter(
-                    x=np.r_[xs[0], xs, xs[-1]],
-                    y=np.r_[0, ys, 0],
-                    fill="toself",
-                    mode="lines",
-                    line=dict(width=0),
-                    name="Shaded"
-                ))
-        fig.add_vline(x=lo, line_width=2, line_dash="dash")
-        fig.add_vline(x=hi, line_width=2, line_dash="dash")
+      // Error function approximation
+      function erf(x) {
+        const sign = x >= 0 ? 1 : -1;
+        x = Math.abs(x);
 
-    fig.update_layout(
-        title="Interactive Normal Probability (Standard Normal)",
-        xaxis_title="z",
-        yaxis_title="density",
-        template="plotly_white",
-        showlegend=False,
-        margin=dict(t=60),
-        width=800,
-        height=400,
-    )
-    fig.update_xaxes(range=[-4, 4])
-    fig.update_yaxes(range=[0, 0.45], visible=False)
-    return fig
+        const a1 = 0.254829592;
+        const a2 = -0.284496736;
+        const a3 = 1.421413741;
+        const a4 = -1.453152027;
+        const a5 = 1.061405429;
+        const p = 0.3275911;
 
-# ---------- Helpers ----------
-def clip4(x: float) -> float:
-    return float(np.clip(x, -4.0, 4.0))
+        const t = 1.0 / (1.0 + p * x);
+        const y =
+          1.0 -
+          ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
 
-# callbacks: slider -> inputs
-def on_a_slider_change():
-    st.session_state["a"] = clip4(st.session_state["a_slider"])
+        return sign * y;
+      }
 
-def on_ab_slider_change():
-    lo, hi = st.session_state["ab_slider"]
-    lo, hi = clip4(lo), clip4(hi)
-    EPS = 0.01
-    if abs(hi - lo) < EPS:
-        if hi + EPS <= 4.0:
-            hi = hi + EPS
-        elif lo - EPS >= -4.0:
-            lo = lo - EPS
+      // Standard normal PDF
+      function normPdf(x) {
+        return (1.0 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+      }
 
-    st.session_state["a"] = lo
-    st.session_state["b"] = hi
-    st.session_state["ab_slider"] = (lo, hi)
+      // Standard normal CDF
+      function normCdf(x) {
+        return 0.5 * (1.0 + erf(x / Math.sqrt(2)));
+      }
 
-# callbacks: inputs -> slider
-def on_a_input_change():
-    st.session_state["a"] = clip4(st.session_state["a"])
-    st.session_state["a_slider"] = st.session_state["a"]
+      // One-sided area
+      function areaOneSide(mode, a) {
+        return mode === "gt" ? 1.0 - normCdf(a) : normCdf(a);
+      }
 
-def on_ab_input_change():
-    a = clip4(st.session_state["a"])
-    b = clip4(st.session_state["b"])
-    lo, hi = (a, b) if a <= b else (b, a)
-    EPS = 0.01
-    if abs(hi - lo) < EPS:
-        if hi + EPS <= 4.0:
-            hi += EPS
-        elif lo - EPS >= -4.0:
-            lo -= EPS
+      // Two-sided area
+      function areaTwoSide(mode, a, b) {
+        const lo = Math.min(a, b);
+        const hi = Math.max(a, b);
+        const inside = normCdf(hi) - normCdf(lo);
+        return mode === "inside" ? inside : 1.0 - inside;
+      }
 
-    st.session_state["a"] = lo
-    st.session_state["b"] = hi
-    st.session_state["ab_slider"] = (lo, hi)
+      // Clip value to [-4, 4]
+      function clip4(x) {
+        return Math.max(-4.0, Math.min(4.0, x));
+      }
 
-# ---------- Init state ----------
-if "a" not in st.session_state:
-    st.session_state["a"] = 1.0
-if "b" not in st.session_state:
-    st.session_state["b"] = 2.0
-if "a_slider" not in st.session_state:
-    st.session_state["a_slider"] = st.session_state["a"]
-if "ab_slider" not in st.session_state:
-    lo, hi = (st.session_state["a"], st.session_state["b"])
-    if lo > hi:
-        lo, hi = hi, lo
-    st.session_state["ab_slider"] = (lo, hi)
+      // ========== State ==========
 
-# ---------- UI ----------
-st.set_page_config(page_title="Normal Probability", layout="centered")
-st.markdown(
-    """
-    <style>
-    /* Margin Below Plotly chart */
-    div[data-testid="stPlotlyChart"] {
-        margin-bottom: 0rem;
-    }
+      let state = {
+        testType: "lt",
+        a: 1.0,
+        b: 2.0,
+        mirrorMode: false,
+      };
 
-    /* Move slider up */
-    div[data-testid="stSlider"] {
-        margin-top: -3rem;
-    }
-    
-    /* Disable text input in selectbox - make it a pure dropdown */
-    div[data-baseweb="select"] input {
-        pointer-events: none;
-        caret-color: transparent;
-        user-select: none;
-    }
-    
-    div[data-baseweb="select"] {
-        cursor: pointer;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-st.title("Normal Distribution Probability")
+      // ========== Plotting ==========
 
-col1, col2 = st.columns([1, 3])
-with col1:
-    st.write("**Test type**")
-with col2:
-    test_type = st.selectbox(
-        "Test type",
-        [
-            "Left tail: P(Z < a)",
-            "Right tail: P(Z > a)",
-            "Between two values: P(a < Z < b)",
-            "Outside two values (two tails): P(Z < a or Z > b)"
-        ],
-        label_visibility="collapsed"
-    )
+      function makeFigure(kind, mode, a, b) {
+        const xValues = [];
+        const yValues = [];
 
-# Determine if single or double value input
-if "Between" in test_type or "Outside" in test_type:
-    # Two-value case
-    mode = "inside" if "Between" in test_type else "outside"
-    
-    c1, c2 = st.columns(2) 
-    with c1: 
-        st.number_input(
-            "a", 
-            key="a", 
-            step=0.01, 
-            format="%.2f", 
-            on_change=on_ab_input_change ) 
-    with c2: 
-        st.number_input( 
-            "b", 
-            key="b", 
-            step=0.01, 
-            format="%.2f", 
-            on_change=on_ab_input_change )
+        for (let i = 0; i <= 1200; i++) {
+          const x = -4 + (8 * i) / 1200;
+          xValues.push(x);
+          yValues.push(normPdf(x));
+        }
 
-    a = clip4(st.session_state["a"])
-    b = clip4(st.session_state["b"])
-    p = area_two_side(mode, a, b)
-    fig = make_figure("two", mode, a, b)
-    st.plotly_chart(fig, use_container_width=True)
+        const traces = [
+          {
+            x: xValues,
+            y: yValues,
+            mode: "lines",
+            line: { color: "#1f77b4", width: 2 },
+            name: "Normal PDF",
+            showlegend: false,
+          },
+        ];
 
-    st.slider(
-        "Drag (a, b)",
-        min_value=-4.0, max_value=4.0,
-        key="ab_slider",
-        value=tuple(st.session_state["ab_slider"]),
-        step=0.01,
-        on_change=on_ab_slider_change
-    )
+        // Add shaded area
+        if (kind === "one") {
+          const mask =
+            mode === "gt"
+              ? xValues.map((x, i) => (x >= a ? i : -1)).filter((i) => i >= 0)
+              : xValues.map((x, i) => (x <= a ? i : -1)).filter((i) => i >= 0);
 
-    lo, hi = (a, b) if a <= b else (b, a)
-    st.subheader(f"Probability = {p:.4f}")
+          const shadedX = mask.map((i) => xValues[i]);
+          const shadedY = mask.map((i) => yValues[i]);
 
-else:
-    # Single-value case
-    mode = "lt" if "Left" in test_type else "gt"
-    
-    st.number_input(
-        "a",
-        key="a",
-        step=0.01,
-        format="%.2f",
-        on_change=on_a_input_change
-    )
+          traces.push({
+            x: [shadedX[0], ...shadedX, shadedX[shadedX.length - 1]],
+            y: [0, ...shadedY, 0],
+            fill: "toself",
+            fillcolor: "rgba(31, 119, 180, 0.3)",
+            line: { width: 0 },
+            showlegend: false,
+          });
+        } else {
+          const lo = Math.min(a, b);
+          const hi = Math.max(a, b);
 
-    a = clip4(st.session_state["a"])
-    p = area_one_side(mode, a)
-    fig = make_figure("one", mode, a, 0.0)
-    st.plotly_chart(fig, use_container_width=True)
+          if (mode === "inside") {
+            const mask = xValues
+              .map((x, i) => (x >= lo && x <= hi ? i : -1))
+              .filter((i) => i >= 0);
+            const shadedX = mask.map((i) => xValues[i]);
+            const shadedY = mask.map((i) => yValues[i]);
 
-    st.slider(
-        "",
-        min_value=-4.0,
-        max_value=4.0,
-        key="a_slider",
-        step=0.01,
-        on_change=on_a_slider_change
-    )
+            traces.push({
+              x: [shadedX[0], ...shadedX, shadedX[shadedX.length - 1]],
+              y: [0, ...shadedY, 0],
+              fill: "toself",
+              fillcolor: "rgba(31, 119, 180, 0.3)",
+              line: { width: 0 },
+              showlegend: false,
+            });
+          } else {
+            // Left tail
+            const mask1 = xValues
+              .map((x, i) => (x <= lo ? i : -1))
+              .filter((i) => i >= 0);
+            const shadedX1 = mask1.map((i) => xValues[i]);
+            const shadedY1 = mask1.map((i) => yValues[i]);
 
-    st.subheader(f"Probability = {p:.4f}")
-`
+            traces.push({
+              x: [shadedX1[0], ...shadedX1, shadedX1[shadedX1.length - 1]],
+              y: [0, ...shadedY1, 0],
+              fill: "toself",
+              fillcolor: "rgba(31, 119, 180, 0.3)",
+              line: { width: 0 },
+              showlegend: false,
+            });
+
+            // Right tail
+            const mask2 = xValues
+              .map((x, i) => (x >= hi ? i : -1))
+              .filter((i) => i >= 0);
+            const shadedX2 = mask2.map((i) => xValues[i]);
+            const shadedY2 = mask2.map((i) => yValues[i]);
+
+            traces.push({
+              x: [shadedX2[0], ...shadedX2, shadedX2[shadedX2.length - 1]],
+              y: [0, ...shadedY2, 0],
+              fill: "toself",
+              fillcolor: "rgba(31, 119, 180, 0.3)",
+              line: { width: 0 },
+              showlegend: false,
+            });
           }
-        },
-        document.getElementById("root")
-      );
+        }
+
+        // Add vertical lines
+        const shapes = [];
+        if (kind === "one") {
+          shapes.push({
+            type: "line",
+            x0: a,
+            y0: 0,
+            x1: a,
+            y1: 0.45,
+            line: { color: "red", width: 2, dash: "dash" },
+          });
+        } else {
+          const lo = Math.min(a, b);
+          const hi = Math.max(a, b);
+          shapes.push({
+            type: "line",
+            x0: lo,
+            y0: 0,
+            x1: lo,
+            y1: 0.45,
+            line: { color: "red", width: 2, dash: "dash" },
+          });
+          shapes.push({
+            type: "line",
+            x0: hi,
+            y0: 0,
+            x1: hi,
+            y1: 0.45,
+            line: { color: "red", width: 2, dash: "dash" },
+          });
+        }
+
+        const layout = {
+          title: "Standard Normal Distribution",
+          xaxis: {
+            title: "Z-score",
+            range: [-4, 4],
+          },
+          yaxis: {
+            title: "density",
+            range: [0, 0.45],
+            visible: false,
+          },
+          shapes: shapes,
+          margin: { t: 60, b: 40, l: 40, r: 40 },
+          height: 400,
+          plot_bgcolor: "white",
+          paper_bgcolor: "white",
+        };
+
+        Plotly.newPlot("chart", traces, layout, { responsive: true });
+      }
+
+      // ========== UI Functions ==========
+
+      function updateInputs() {
+        const testType = state.testType;
+        const inputsContainer = document.getElementById("inputsContainer");
+
+        if (testType === "inside" || testType === "outside") {
+          // Two inputs
+          inputsContainer.innerHTML = `
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="inputA">a</label>
+                            <input type="number" id="inputA" step="0.01" value="${state.a.toFixed(2)}">
+                        </div>
+                        <div class="input-group">
+                            <label for="inputB">b</label>
+                            <input type="number" id="inputB" step="0.01" value="${state.b.toFixed(2)}">
+                        </div>
+                    </div>
+                    <div class="mirror-mode-container">
+                        <input type="checkbox" id="mirrorMode" ${state.mirrorMode ? "checked" : ""}>
+                        <label for="mirrorMode">Equal tails</label>
+                    </div>
+                `;
+
+          document.getElementById("inputA").addEventListener("input", (e) => {
+            state.a = clip4(parseFloat(e.target.value) || 0);
+            if (state.mirrorMode) {
+              state.b = -state.a;
+            }
+            updateAll();
+          });
+
+          document.getElementById("inputB").addEventListener("input", (e) => {
+            state.b = clip4(parseFloat(e.target.value) || 0);
+            if (state.mirrorMode) {
+              state.a = -state.b;
+            }
+            updateAll();
+          });
+
+          document
+            .getElementById("mirrorMode")
+            .addEventListener("change", (e) => {
+              state.mirrorMode = e.target.checked;
+              if (state.mirrorMode) {
+                state.b = -state.a;
+                updateAll();
+              }
+            });
+        } else {
+          // Single input
+          inputsContainer.innerHTML = `
+                    <div class="input-group">
+                        <label for="inputA">a</label>
+                        <input type="number" id="inputA" step="0.01" value="${state.a.toFixed(2)}">
+                    </div>
+                `;
+
+          document.getElementById("inputA").addEventListener("input", (e) => {
+            state.a = clip4(parseFloat(e.target.value) || 0);
+            updateAll();
+          });
+        }
+      }
+
+      function updateSlider() {
+        const testType = state.testType;
+        const sliderContainer = document.getElementById("sliderContainer");
+
+        if (testType === "inside" || testType === "outside") {
+          // Double slider (range)
+          const lo = Math.min(state.a, state.b);
+          const hi = Math.max(state.a, state.b);
+
+          sliderContainer.innerHTML = `
+                    <div class="double-range">
+                        <div class="range-track"></div>
+                        <div class="range-fill" id="rangeFill"></div>
+                        <input type="range" id="sliderMin" min="-4" max="4" step="0.01" value="${lo}">
+                        <input type="range" id="sliderMax" min="-4" max="4" step="0.01" value="${hi}">
+                    </div>
+                `;
+
+          const sliderMin = document.getElementById("sliderMin");
+          const sliderMax = document.getElementById("sliderMax");
+          const rangeFill = document.getElementById("rangeFill");
+
+          function updateRangeFill() {
+            const min = parseFloat(sliderMin.value);
+            const max = parseFloat(sliderMax.value);
+            const percent1 = ((min + 4) / 8) * 100;
+            const percent2 = ((max + 4) / 8) * 100;
+            rangeFill.style.left = percent1 + "%";
+            rangeFill.style.width = percent2 - percent1 + "%";
+          }
+
+          sliderMin.addEventListener("input", (e) => {
+            let val = parseFloat(e.target.value);
+
+            if (state.mirrorMode) {
+              // Mirror mode: changing a also changes b symmetrically
+              state.a = val;
+              state.b = -val;
+              sliderMin.value = Math.min(state.a, state.b);
+              sliderMax.value = Math.max(state.a, state.b);
+            } else {
+              if (val >= parseFloat(sliderMax.value)) {
+                val = parseFloat(sliderMax.value) - 0.01;
+                sliderMin.value = val;
+              }
+              state.a = val;
+              state.b = parseFloat(sliderMax.value);
+            }
+
+            updateRangeFill();
+            updateGraph();
+            updateProbability();
+            updateInputValues();
+          });
+
+          sliderMax.addEventListener("input", (e) => {
+            let val = parseFloat(e.target.value);
+
+            if (state.mirrorMode) {
+              // Mirror mode: changing b also changes a symmetrically
+              state.b = val;
+              state.a = -val;
+              sliderMin.value = Math.min(state.a, state.b);
+              sliderMax.value = Math.max(state.a, state.b);
+            } else {
+              if (val <= parseFloat(sliderMin.value)) {
+                val = parseFloat(sliderMin.value) + 0.01;
+                sliderMax.value = val;
+              }
+              state.a = parseFloat(sliderMin.value);
+              state.b = val;
+            }
+
+            updateRangeFill();
+            updateGraph();
+            updateProbability();
+            updateInputValues();
+          });
+
+          updateRangeFill();
+        } else {
+          // Single slider
+          sliderContainer.innerHTML = `
+                    <input type="range" id="sliderA" min="-4" max="4" step="0.01" value="${state.a}">
+                `;
+
+          document.getElementById("sliderA").addEventListener("input", (e) => {
+            state.a = parseFloat(e.target.value);
+            updateGraph();
+            updateProbability();
+            updateInputValues();
+          });
+        }
+      }
+
+      function updateGraph() {
+        const testType = state.testType;
+
+        if (testType === "inside" || testType === "outside") {
+          makeFigure("two", testType, state.a, state.b);
+        } else {
+          makeFigure("one", testType, state.a, 0);
+        }
+      }
+
+      function updateProbability() {
+        const testType = state.testType;
+        let prob;
+
+        if (testType === "inside" || testType === "outside") {
+          prob = areaTwoSide(testType, state.a, state.b);
+        } else {
+          prob = areaOneSide(testType, state.a);
+        }
+
+        document.getElementById("probability").textContent =
+          `Probability = ${prob.toFixed(4)}`;
+      }
+
+      function updateInputValues() {
+        const inputA = document.getElementById("inputA");
+        const inputB = document.getElementById("inputB");
+
+        if (inputA) {
+          inputA.value = state.a.toFixed(2);
+        }
+        if (inputB) {
+          inputB.value = state.b.toFixed(2);
+        }
+      }
+
+      function updateAll() {
+        updateGraph();
+        updateProbability();
+        updateSlider();
+      }
+
+      // ========== Custom Dropdown ==========
+
+      function initCustomSelect() {
+        const customSelect = document.getElementById("testTypeSelect");
+        const trigger = customSelect.querySelector(".custom-select-trigger");
+        const options = customSelect.querySelectorAll(".custom-option");
+        const valueDisplay = customSelect.querySelector(".custom-select-value");
+
+        // Toggle dropdown
+        trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          customSelect.classList.toggle("open");
+        });
+
+        // Select option
+        options.forEach((option) => {
+          option.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            // Update selected state
+            options.forEach((opt) => opt.classList.remove("selected"));
+            option.classList.add("selected");
+
+            // Update display value
+            valueDisplay.innerHTML = option.innerHTML;
+
+            // Update state
+            state.testType = option.dataset.value;
+
+            // Close dropdown
+            customSelect.classList.remove("open");
+
+            // Update UI
+            updateInputs();
+            updateAll();
+          });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", () => {
+          customSelect.classList.remove("open");
+        });
+      }
+
+      // ========== Init ==========
+
+      // Initialize custom dropdown
+      initCustomSelect();
+
+      // Initial render
+      updateInputs();
+      updateSlider();
+      updateGraph();
+      updateProbability();
     </script>
   </body>
 </html>
